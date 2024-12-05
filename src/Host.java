@@ -18,6 +18,7 @@ import java.util.LinkedList;
 public class Host {
     private final DiningRoom diningRoom = new DiningRoom();
     private Boolean isBusy = false;
+    private Boolean diningRoomWasFull = false;
 
     /**
      * Tries to seat a group of guests
@@ -27,10 +28,13 @@ public class Host {
      */
     private void checkSeat(int seatsNeeded, boolean barAcceptable) throws InterruptedException {
         LinkedList<Table> tables = diningRoom.getTables();
-
+        boolean wasEmptyTable = false;
         for (int i = 0; i < tables.size(); i++) {
             Thread.sleep(config.seatCheckTime);
             Table table = tables.get(i);
+            if(config.useCircuitBreakerPattern && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar()){
+                wasEmptyTable = true;
+            }
             if( // Checks if the table is a bar and a bar is acceptable and there are enough seats
                 (table.isBar() && barAcceptable && table.getAvailableSeats() >= seatsNeeded) ||
                 // Checks if the table is table and has enough seats and no one is sitting at that table
@@ -38,9 +42,25 @@ public class Host {
             ){
                 diningRoom.seatCustomerAtTable(i, seatsNeeded);
                 seatFound = true;
+                diningRoomWasFull = false;
                 break;
             }
         }
+        if(config.useCircuitBreakerPattern && !wasEmptyTable){
+            diningRoomWasFull = true;
+            System.out.println("Dining room was full");
+            new Thread(() -> {
+                try {
+                    Thread.sleep(config.circuitBreakerOpenTime);
+                    diningRoomWasFull = false;
+                    System.out.println("Able to check dining room again");
+                }
+                catch (Exception e){
+                    System.err.println(e);
+                }
+            }).start();
+        }
+
     }
     private boolean seatFound = false;
 
@@ -51,7 +71,7 @@ public class Host {
      * @throws InterruptedException Thrown when a threading error occurs
      */
     public boolean seatCustomer(Customer customer) throws InterruptedException {
-        if(!isBusy) {
+        if(!isBusy && !diningRoomWasFull) {
             isBusy = true;
             seatFound = false;
 
