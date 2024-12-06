@@ -5,6 +5,10 @@
  * Name: Sam Lim
  * Created 11/12/2024
  */
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+
 import java.util.LinkedList;
 
 /**
@@ -15,82 +19,68 @@ import java.util.LinkedList;
  * @author Sam Lim
  * @version created on 10/11/2024 9:30am
  */
-public class Host {
+public class Host extends SimulatedObject{
+    private Pane pane;
     private final DiningRoom diningRoom = new DiningRoom();
     private Boolean isBusy = false;
     private Boolean diningRoomWasFull = false;
+    private Boolean wasEmptyTable = true;
 
-    /**
-     * Tries to seat a group of guests
-     * @param seatsNeeded How many guests are being seated
-     * @param barAcceptable Whether they will sit at a bar
-     * @throws InterruptedException Thrown when a threading error occurs
-     */
-    private void checkSeat(int seatsNeeded, boolean barAcceptable) throws InterruptedException {
+    private void scheduledCheckSeat(int tableNum, Customer customer){
         LinkedList<Table> tables = diningRoom.getTables();
-        boolean wasEmptyTable = false;
-        for (int i = 0; i < tables.size(); i++) {
-            Thread.sleep(config.seatCheckTime);
-            Table table = tables.get(i);
-            if(config.useCircuitBreakerPattern && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar()){
-                wasEmptyTable = true;
-            }
-            if( // Checks if the table is a bar and a bar is acceptable and there are enough seats
-                (table.isBar() && barAcceptable && table.getAvailableSeats() >= seatsNeeded) ||
-                // Checks if the table is table and has enough seats and no one is sitting at that table
-                (table.getAvailableSeats() >= seatsNeeded && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar())
-            ){
-                diningRoom.seatCustomerAtTable(i, seatsNeeded);
-                seatFound = true;
-                diningRoomWasFull = false;
-                break;
-            }
-        }
-        if(config.useCircuitBreakerPattern && !wasEmptyTable){
-            diningRoomWasFull = true;
-            System.out.println("Dining room was full");
-            new Thread(() -> {
-                try {
-                    Thread.sleep(config.circuitBreakerOpenTime);
-                    diningRoomWasFull = false;
-                    System.out.println("Able to check dining room again");
-                }
-                catch (Exception e){
-                    System.err.println(e);
-                }
-            }).start();
+        Table table = tables.get(tableNum);
+        if(config.useCircuitBreakerPattern && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar()){
+            wasEmptyTable = true;
         }
 
+        if( // Checks if the table is a bar and a bar is acceptable and there are enough seats
+                (table.isBar() && customer.getBarPreference() && table.getAvailableSeats() >= customer.getSeatsNeeded()) ||
+                        // Checks if the table is table and has enough seats and no one is sitting at that table
+                        (table.getAvailableSeats() >= customer.getSeatsNeeded() && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar())
+        ){
+            diningRoom.seatCustomerAtTable(tableNum, customer.getSeatsNeeded());
+            diningRoomWasFull = false;
+            isBusy = false;
+            wasEmptyTable = true;
+            System.out.println("Seated customer");
+        } else{
+            if(tableNum < tables.size() -1){
+                schedule(config.seatCheckTime,() -> {
+                    scheduledCheckSeat(tableNum+1, customer);
+                });
+            } else if(config.useCircuitBreakerPattern && !wasEmptyTable){
+                    diningRoomWasFull = true;
+                    System.out.println("Dining room was full");
+                    schedule(config.circuitBreakerOpenTime, () -> {
+                        diningRoomWasFull = false;
+                        System.out.println("Able to check dining room again");
+                    });
+                isBusy = false;
+            }
+        }
     }
-    private boolean seatFound = false;
 
     /**
      * Attempts to seat a group of guests based on their needs
      * @param customer The customer trying to be seated
-     * @return Whether the customer was seated
-     * @throws InterruptedException Thrown when a threading error occurs
      */
-    public boolean seatCustomer(Customer customer) throws InterruptedException {
+    public void seatCustomer(Customer customer) {
         if(!isBusy && !diningRoomWasFull) {
             isBusy = true;
-            seatFound = false;
 
-            Thread thread = new Thread(() -> {
-                try {
-                    this.checkSeat(customer.getSeatsNeeded(), customer.getBarPreference());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+            schedule(config.seatCheckTime,() -> {
+                scheduledCheckSeat(0, customer);
             });
-            thread.start();
-
-            thread.join();
-            isBusy = false;
-            return seatFound;
-        } else {
-            return false;
         }
     }
 
+    Host(){
+        pane = new Pane();
+        pane.getChildren().add(new Circle(12.5/2,12.5/2,12.5, Color.RED));
+    }
 
+    @Override
+    public Pane getPane() {
+        return pane;
+    }
 }

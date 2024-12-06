@@ -5,6 +5,9 @@
  * Name: Sam Lim
  * Created 11/12/2024
  */
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
+
 import java.util.LinkedList;
 
 /**
@@ -15,7 +18,8 @@ import java.util.LinkedList;
  * @author Sam Lim
  * @version created on 10/11/2024 9:20am
  */
-public class DiningRoom {
+public class DiningRoom extends SimulatedObject{
+    FlowPane pane = new FlowPane();
     private final LinkedList<Table> tables = new LinkedList<>();
 
     public DiningRoom(int tables, int bars) {
@@ -25,6 +29,14 @@ public class DiningRoom {
         for (int i = 0; i < bars; i++) {
             this.tables.add(new Table(config.barSeats, true));
         }
+
+        this.pane.setPrefWidth(750);
+        this.pane.setHgap(5);
+        this.pane.setVgap(5);
+        this.pane.setPrefWrapLength(750);
+
+
+        this.tables.forEach(table -> pane.getChildren().add(table.getPane()));
     }
 
     public DiningRoom(){
@@ -47,4 +59,8 @@ public class DiningRoom {
         }
     }
 
+    @Override
+    public Pane getPane() {
+        return pane;
+    }
 }

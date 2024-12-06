@@ -6,6 +6,8 @@
  * Created 11/12/2024
  */
 
+import javafx.scene.layout.Pane;
+
 /**
  * Course SWE2410-121
  * Fall 2024-2025
@@ -14,7 +16,9 @@
  * @author Sam Lim
  * @version created on 10/11/2024 9:00am
  */
-public class Customer {
+public class Customer extends SimulatedObject{
+
+    private Pane pane = new Pane();
     private final int seatsNeeded;
     private final boolean barAcceptable;
 
@@ -28,5 +32,10 @@ public class Customer {
     }
     public boolean getBarPreference(){
         return barAcceptable;
+    }
+
+    @Override
+    public Pane getPane() {
+        return pane;
     }
 }
