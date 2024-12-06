@@ -17,7 +17,10 @@ public class Main extends Application{
     }
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("scene.fxml"));
+        primaryStage.setTitle("Circuit breaker example");
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
     }
 }
