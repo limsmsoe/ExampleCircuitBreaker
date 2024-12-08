@@ -12,6 +12,7 @@ public abstract class SimulatedObject {
         schedule.computeIfAbsent(Controller.tick + ticksToWait, k -> new LinkedList<>()).add(function);
     };
     abstract public Pane getPane();
+    abstract public void removeObject();
     public static void step() {
         Controller.tick++;
         List<Runnable> tasksToRun = new ArrayList<>();
@@ -21,4 +22,5 @@ public abstract class SimulatedObject {
         });
         tasksToRun.forEach(Runnable::run);
     }
+
 }

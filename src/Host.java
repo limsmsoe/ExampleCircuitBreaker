@@ -34,7 +34,9 @@ public class Host extends SimulatedObject{
         LinkedList<Table> tables = diningRoom.getTables();
         Table table = tables.get(tableNum);
 
-        System.out.println(table.getPane().getLayoutX());
+        pane.toFront();
+        pane.setLayoutX(table.getPane().getLayoutX()+300);
+        pane.setLayoutY(table.getPane().getLayoutY()+181);
 
 
 
@@ -49,23 +51,34 @@ public class Host extends SimulatedObject{
                         (table.getAvailableSeats() >= customer.getSeatsNeeded() && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar())
         ){
             diningRoom.seatCustomerAtTable(tableNum, customer.getSeatsNeeded());
+            schedule(config.seatingDuration, () -> {
+                customer.removeObject();;
+            });
             diningRoomWasFull = false;
             isBusy = false;
             wasEmptyTable = true;
+            customer.getPane().setLayoutX(pane.getLayoutX());
+            customer.getPane().setLayoutY(pane.getLayoutY());
+            pane.setLayoutX(150);
+            pane.setLayoutY(150);
             System.out.println("Seated customer");
         } else{
             if(tableNum < tables.size() -1){
                 schedule(config.seatCheckTime,() -> {
                     scheduledCheckSeat(tableNum+1, customer);
                 });
-            } else if(config.useCircuitBreakerPattern && !wasEmptyTable){
+            } else {
+                pane.setLayoutX(150);
+                pane.setLayoutY(150);
+                if (config.useCircuitBreakerPattern && !wasEmptyTable) {
                     diningRoomWasFull = true;
                     System.out.println("Dining room was full");
                     schedule(config.circuitBreakerOpenTime, () -> {
                         diningRoomWasFull = false;
                         System.out.println("Able to check dining room again");
                     });
-                isBusy = false;
+                    isBusy = false;
+                }
             }
         }
     }
@@ -88,10 +101,16 @@ public class Host extends SimulatedObject{
     Host(){
         pane = new Pane();
         pane.getChildren().add(new Circle(12.5/2,12.5/2,12.5, Color.RED));
+        pane.setViewOrder(5);
     }
 
     @Override
     public Pane getPane() {
         return pane;
+    }
+
+    @Override
+    public void removeObject(){
+        ((Pane) pane.getParent()).getChildren().remove(pane);
     }
 }

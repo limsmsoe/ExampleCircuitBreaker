@@ -41,4 +41,9 @@ public class Customer extends SimulatedObject{
     public Pane getPane() {
         return pane;
     }
+
+    @Override
+    public void removeObject(){
+        ((Pane) pane.getParent()).getChildren().remove(pane);
+    }
 }

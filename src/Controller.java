@@ -14,9 +14,9 @@ public class Controller{
 
     @FXML
     public void initialize(){
-        Host host = new Host();
         DiningRoom diningRoom = new DiningRoom();
-        root.getChildren().addAll(host.getPane(), diningRoom.getPane());
+        Host host = new Host();
+        root.getChildren().addAll(diningRoom.getPane(),host.getPane());
         host.getPane().setLayoutX(150);
         host.getPane().setLayoutY(150);
 
@@ -25,9 +25,9 @@ public class Controller{
 
         System.out.println("Hello world");
 
-        //int seatsNeeded = (new Random()).nextInt(10 - 1 + 1) + 1;
+        int seatsNeeded = (new Random()).nextInt(10 - 1 + 1) + 1;
         boolean barAcceptable = (new Random()).nextBoolean();
-        int seatsNeeded = 10;
+        //int seatsNeeded = 10;
         System.out.printf("Attempting to seat customer: Needs %d seats, barAcceptable: %b%n", seatsNeeded, barAcceptable);
         Customer customer = new Customer(seatsNeeded, barAcceptable);
         root.getChildren().add(customer.getPane());

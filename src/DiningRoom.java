@@ -69,6 +69,7 @@ public class DiningRoom extends SimulatedObject{
         table.getPane().setLayoutY(currentRowHeight);
 
         pane.getChildren().add(table.getPane());
+        pane.toBack();
     }
 
     /**
@@ -86,5 +87,10 @@ public class DiningRoom extends SimulatedObject{
     @Override
     public Pane getPane() {
         return pane;
+    }
+
+    @Override
+    public void removeObject(){
+        ((Pane) pane.getParent()).getChildren().remove(pane);
     }
 }
