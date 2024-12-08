@@ -34,6 +34,13 @@ public class Table extends SimulatedObject{
     private int availableSeats;
     private final boolean isBar;
 
+    public static Color getRandomColor() {
+        Random random = new Random();
+        double red = random.nextDouble();
+        double green = random.nextDouble();
+        double blue = random.nextDouble();
+        return new Color(red, green, blue, 1.0); // 1.0 for full opacity
+    }
     public Table(int totalSeats, boolean isBar) {
         this.totalSeats = totalSeats;
         availableSeats = this.totalSeats;
@@ -46,9 +53,10 @@ public class Table extends SimulatedObject{
             bar.setFill(Color.CYAN);
             this.pane.getChildren().add(bar);
         } else {
+
             Circle table = new Circle(15,15,30,Color.CYAN);
             this.pane.getChildren().add(table);
-
+            System.out.println(this.pane.getLayoutBounds());
         }
     }
 

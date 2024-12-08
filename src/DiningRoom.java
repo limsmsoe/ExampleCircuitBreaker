@@ -5,6 +5,7 @@
  * Name: Sam Lim
  * Created 11/12/2024
  */
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 
@@ -19,24 +20,18 @@ import java.util.LinkedList;
  * @version created on 10/11/2024 9:20am
  */
 public class DiningRoom extends SimulatedObject{
-    FlowPane pane = new FlowPane();
+    AnchorPane pane = new AnchorPane();
     private final LinkedList<Table> tables = new LinkedList<>();
 
     public DiningRoom(int tables, int bars) {
         for (int i = 0; i < tables; i++) {
-            this.tables.add(new Table());
+            addTable(new Table());
         }
         for (int i = 0; i < bars; i++) {
-            this.tables.add(new Table(config.barSeats, true));
+            addTable(new Table(config.barSeats, true));
         }
 
         this.pane.setPrefWidth(750);
-        this.pane.setHgap(5);
-        this.pane.setVgap(5);
-        this.pane.setPrefWrapLength(750);
-
-
-        this.tables.forEach(table -> pane.getChildren().add(table.getPane()));
     }
 
     public DiningRoom(){
@@ -45,6 +40,35 @@ public class DiningRoom extends SimulatedObject{
 
     public LinkedList<Table> getTables(){
         return tables;
+    }
+
+    private static final double MIN_CELL_WIDTH = 60;
+    private static final double MIN_CELL_HEIGHT = 65;
+    private static final double MAX_ROW_LENGTH = 750;
+    private static final double ROW_HGAP = 5;
+    private double rowLength = 0;
+    private double currentRowHeight = 0;
+
+    /**
+     * Adds a table to the dining room and displays it in a FlowPane like way
+     * Its necessary to use an AnchorPane so that the Host can move to location of the Table; When a FlowPane was used,
+     * all Tables had the same position making it impossible to move the Host to the Table
+     * @param table the table to be displayed
+     */
+    private void addTable(Table table){
+        tables.add(table);
+        double cellWidth = Math.max(table.getPane().getWidth(), MIN_CELL_WIDTH);
+        if(cellWidth + rowLength+ROW_HGAP > MAX_ROW_LENGTH){
+            currentRowHeight += MIN_CELL_HEIGHT;
+            rowLength = 0;
+        }
+        table.getPane().setLayoutX(rowLength + ROW_HGAP);
+        rowLength+=cellWidth + ROW_HGAP;
+        System.out.println(rowLength);
+
+        table.getPane().setLayoutY(currentRowHeight);
+
+        pane.getChildren().add(table.getPane());
     }
 
     /**

@@ -8,7 +8,7 @@ public class config {
     public static final long DEFAULT_SEATING_DURATION = 10000*3; // How long a customer occupies a table seat
     public static final boolean DEFAULT_USE_CIRCUIT_BREAKER_PATTERN = true; // Whether the host is using checking every table every time
     public static final long DEFAULT_CIRCUIT_BREAKER_OPEN_TIME = 1000*3; // How long the host waits before checking the tables again
-    public static final long DEFAULT_MILLISECONDS_PER_STEP = 1;
+    public static final long DEFAULT_MILLISECONDS_PER_STEP = 1; // How long to wait between each step
 
     public static long seatCheckTime = DEFAULT_SEAT_CHECK_TIME;
     public static int barSeats = DEFAULT_BAR_SEATS;

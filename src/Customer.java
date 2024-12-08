@@ -7,6 +7,8 @@
  */
 
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 /**
  * Course SWE2410-121
@@ -25,6 +27,7 @@ public class Customer extends SimulatedObject{
     public Customer(int seatsNeeded, boolean barAcceptable) {
         this.seatsNeeded = seatsNeeded;
         this.barAcceptable = barAcceptable;
+        pane.getChildren().add(new Circle(12.5/2,12.5/2,12.5, Color.GRAY));
     }
 
     public int getSeatsNeeded(){

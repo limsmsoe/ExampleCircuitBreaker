@@ -5,10 +5,14 @@
  * Name: Sam Lim
  * Created 11/12/2024
  */
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.LinkedList;
 
 /**
@@ -29,6 +33,12 @@ public class Host extends SimulatedObject{
     private void scheduledCheckSeat(int tableNum, Customer customer){
         LinkedList<Table> tables = diningRoom.getTables();
         Table table = tables.get(tableNum);
+
+        System.out.println(table.getPane().getLayoutX());
+
+
+
+
         if(config.useCircuitBreakerPattern && table.getAvailableSeats() == table.getTotalSeats() && !table.isBar()){
             wasEmptyTable = true;
         }
@@ -67,7 +77,8 @@ public class Host extends SimulatedObject{
     public void seatCustomer(Customer customer) {
         if(!isBusy && !diningRoomWasFull) {
             isBusy = true;
-
+            customer.getPane().setLayoutX(pane.getLayoutX());
+            customer.getPane().setLayoutY(pane.getLayoutY() - 15);
             schedule(config.seatCheckTime,() -> {
                 scheduledCheckSeat(0, customer);
             });
